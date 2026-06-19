@@ -13,34 +13,11 @@ import './style.css';
 
 const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-const MAP_STYLE = {
-  version: 8 as const,
-  sources: {
-    basemap: {
-      type: 'raster' as const,
-      tiles: [
-        isDark
-          ? 'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png'
-          : 'https://a.basemaps.cartocdn.com/voyager/{z}/{x}/{y}@2x.png',
-      ],
-      tileSize: 256,
-      attribution:
-        '© <a href="https://carto.com/attributions" target="_blank">CARTO</a> © <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>',
-    },
-  },
-  layers: [
-    {
-      id: 'basemap',
-      type: 'raster' as const,
-      source: 'basemap',
-    },
-  ],
-};
-
 const map = new maplibregl.Map({
   container: 'map',
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  style: MAP_STYLE as any,
+  style: isDark
+    ? 'https://tiles.openfreemap.org/styles/liberty'
+    : 'https://tiles.openfreemap.org/styles/positron',
   center: [0, 20],
   zoom: 1.6,
   attributionControl: false,
