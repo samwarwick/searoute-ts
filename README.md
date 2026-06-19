@@ -20,7 +20,7 @@ const route = seaRoute([121.5, 31.0], [4.4, 51.9]);
 // Shanghai → Rotterdam → GeoJSON LineString, ~10,664 nm via Suez Canal
 ```
 
-**🗺️ [Try the interactive demo](https://mayurrawte.github.io/searoute-ts/)** — click two points on a map and see the route, with all options live. ([source](./examples/web-demo))
+**🗺️ [Try the interactive demo](https://samwarwick.github.io/searoute-ts/)** — click two points on a map and see the route, with all options live. ([source](./examples/web-demo))
 
 > Works from plain JavaScript too — the package ships compiled `.js` plus
 > `.d.ts` declarations. The `-ts` in the name is for searchability, not a
@@ -80,7 +80,7 @@ seaRoute(shanghai, rotterdam, {
 
 ```ts
 seaRoute(shanghai, newYork, {
-  vesselDraftMeters: 16,  // exceeds Panama's 15.2 m TFW
+  vesselDraftMeters: 16, // exceeds Panama's 15.2 m TFW
 });
 // → Panama auto-blocked, route goes via Suez
 ```
@@ -90,10 +90,10 @@ seaRoute(shanghai, newYork, {
 ```ts
 import { seaRouteMulti } from 'searoute-ts';
 
-seaRouteMulti(
-  [shanghai, singapore, mumbai, rotterdam],
-  { units: 'kilometers', returnPassages: true },
-);
+seaRouteMulti([shanghai, singapore, mumbai, rotterdam], {
+  units: 'kilometers',
+  returnPassages: true,
+});
 // → one concatenated LineString, total length, union of passages
 ```
 
@@ -133,15 +133,15 @@ const alts = seaRouteAlternatives(shanghai, rotterdam, { k: 4 });
 
 ```ts
 seaRoute(origin, destination, {
-  units:                   'nauticalmiles',          // any Turf unit
-  restrictions:            ['suez', 'babelmandeb'],  // see passage table below
-  allowArctic:             false,                    // default — blocks NWP & NEP
-  vesselDraftMeters:       15,                       // auto-restrict canals
-  speedKnots:              22,                       // → properties.durationHours
-  appendOriginDestination: false,                    // prepend/append raw inputs
-  returnPassages:          true,                     // populate properties.passages
-  maxSnapDistanceKm:       50,                       // SnapFailedError if exceeded
-  network:                 customMarnet,             // BYO FeatureCollection
+  units: 'nauticalmiles', // any Turf unit
+  restrictions: ['suez', 'babelmandeb'], // see passage table below
+  allowArctic: false, // default — blocks NWP & NEP
+  vesselDraftMeters: 15, // auto-restrict canals
+  speedKnots: 22, // → properties.durationHours
+  appendOriginDestination: false, // prepend/append raw inputs
+  returnPassages: true, // populate properties.passages
+  maxSnapDistanceKm: 50, // SnapFailedError if exceeded
+  network: customMarnet, // BYO FeatureCollection
 });
 ```
 
@@ -153,24 +153,24 @@ The first twelve are **natively labelled** in the Eurostat marnet (exact match
 on the feature's `pass` attribute). The remaining four are detected via
 bounding boxes.
 
-| Name           | Type     | Notes                              |
-|----------------|----------|------------------------------------|
-| `suez`         | native   | Suez Canal                         |
-| `panama`       | native   | Panama Canal                       |
-| `gibraltar`    | native   | Strait of Gibraltar                |
-| `babelmandeb`  | native   | Bab-el-Mandeb (`babalmandab` alias) |
-| `malacca`      | native   | Malacca Strait                     |
-| `dover`        | native   | Dover Strait                       |
-| `kiel`         | native   | Kiel Canal                         |
-| `corinth`      | native   | Corinth Canal                      |
-| `bering`       | native   | Bering Strait                      |
-| `magellan`     | native   | Strait of Magellan                 |
-| `northwest`    | native   | Northwest Passage (blocked by default) |
-| `northeast`    | native   | Northeast Passage (blocked by default) |
-| `bosporus`     | bbox     | Bosphorus                          |
-| `ormuz`        | bbox     | Strait of Hormuz                   |
-| `sunda`        | bbox     | Sunda Strait                       |
-| `cape_horn`    | bbox     | Cape Horn region                   |
+| Name          | Type   | Notes                                  |
+| ------------- | ------ | -------------------------------------- |
+| `suez`        | native | Suez Canal                             |
+| `panama`      | native | Panama Canal                           |
+| `gibraltar`   | native | Strait of Gibraltar                    |
+| `babelmandeb` | native | Bab-el-Mandeb (`babalmandab` alias)    |
+| `malacca`     | native | Malacca Strait                         |
+| `dover`       | native | Dover Strait                           |
+| `kiel`        | native | Kiel Canal                             |
+| `corinth`     | native | Corinth Canal                          |
+| `bering`      | native | Bering Strait                          |
+| `magellan`    | native | Strait of Magellan                     |
+| `northwest`   | native | Northwest Passage (blocked by default) |
+| `northeast`   | native | Northeast Passage (blocked by default) |
+| `bosporus`    | bbox   | Bosphorus                              |
+| `ormuz`       | bbox   | Strait of Hormuz                       |
+| `sunda`       | bbox   | Sunda Strait                           |
+| `cape_horn`   | bbox   | Cape Horn region                       |
 
 The Northwest and Northeast Passages are mathematically the shortest path for
 many Asia ↔ Europe routes but are ice-blocked most of the year, so they are
@@ -180,16 +180,16 @@ many Asia ↔ Europe routes but are ice-blocked most of the year, so they are
 
 12 real-world lanes within ±10% of published Searoutes / Sea-Distances figures.
 
-| Lane                              | searoute-ts | Industry ref. |
-|-----------------------------------|-------------|---------------|
-| Shanghai → Rotterdam (Suez)       | 19 753 km   | ~19 300 km    |
-| Singapore → Rotterdam (Suez)      | 15 630 km   | ~15 500 km    |
-| Mumbai → Rotterdam (Suez)         | 11 918 km   | ~11 800 km    |
-| NY → Rotterdam                    |  6 227 km   | ~6 200 km     |
-| NY → LA (Panama)                  |  9 154 km   | ~9 100 km     |
-| Yokohama → LA                     |  9 145 km   | ~8 800 km     |
-| Singapore → LA (trans-Pacific)    | 14 364 km   | ~14 300 km    |
-| Caldera (CL) → Bahía Blanca (AR)  |  4 810 km   | ~5 180 km     |
+| Lane                             | searoute-ts | Industry ref. |
+| -------------------------------- | ----------- | ------------- |
+| Shanghai → Rotterdam (Suez)      | 19 753 km   | ~19 300 km    |
+| Singapore → Rotterdam (Suez)     | 15 630 km   | ~15 500 km    |
+| Mumbai → Rotterdam (Suez)        | 11 918 km   | ~11 800 km    |
+| NY → Rotterdam                   | 6 227 km    | ~6 200 km     |
+| NY → LA (Panama)                 | 9 154 km    | ~9 100 km     |
+| Yokohama → LA                    | 9 145 km    | ~8 800 km     |
+| Singapore → LA (trans-Pacific)   | 14 364 km   | ~14 300 km    |
+| Caldera (CL) → Bahía Blanca (AR) | 4 810 km    | ~5 180 km     |
 
 All checks pass in the [test suite](./src/index.spec.ts).
 
@@ -205,13 +205,13 @@ All checks pass in the [test suite](./src/index.spec.ts).
 
 ```ts
 import {
-  seaRoute,                  // single shortest route
-  seaRouteMulti,             // ordered waypoints (multi-leg)
-  seaRouteAlternatives,      // K-shortest alternatives
-  CANAL_MAX_DRAFT_M,         // { panama: 15.2, suez: 20.1, kiel: 7, corinth: 7.3 }
-  DEFAULT_MARNET,            // bundled FeatureCollection<LineString>
-  PASSAGE_BBOXES,            // passage bbox lookup
-  clearFinderCache,          // drop the PathFinder cache (tests / hot reload)
+  seaRoute, // single shortest route
+  seaRouteMulti, // ordered waypoints (multi-leg)
+  seaRouteAlternatives, // K-shortest alternatives
+  CANAL_MAX_DRAFT_M, // { panama: 15.2, suez: 20.1, kiel: 7, corinth: 7.3 }
+  DEFAULT_MARNET, // bundled FeatureCollection<LineString>
+  PASSAGE_BBOXES, // passage bbox lookup
+  clearFinderCache, // drop the PathFinder cache (tests / hot reload)
   SnapFailedError,
   NoRouteError,
   // types
