@@ -169,14 +169,34 @@ function recompute() {
   }
 }
 
+// Unwrap coordinates so consecutive longitudes never jump more than 180°.
+// This ensures trans-Pacific and other antimeridian-crossing routes render
+// correctly in MapLibre instead of drawing a horizontal line across the map.
+function unwrapCoords(coords: [number, number][]): [number, number][] {
+  if (coords.length === 0) return coords;
+  const result: [number, number][] = [[coords[0][0], coords[0][1]]];
+  for (let i = 1; i < coords.length; i++) {
+    let lng = coords[i][0];
+    const prevLng = result[i - 1][0];
+    const diff = lng - prevLng;
+    if (diff > 180) lng -= 360;
+    else if (diff < -180) lng += 360;
+    result.push([lng, coords[i][1]]);
+  }
+  return result;
+}
+
 function drawRoute(route: SeaRouteFeature | undefined) {
   const src = map.getSource('route') as maplibregl.GeoJSONSource | undefined;
-  const data = (route ?? {
-    type: 'Feature',
-    geometry: { type: 'LineString', coordinates: [] },
-    properties: {},
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  }) as any;
+
+  const displayCoords = route
+    ? unwrapCoords(route.geometry.coordinates as [number, number][])
+    : [];
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const data: any = route
+    ? { ...route, geometry: { ...route.geometry, coordinates: displayCoords } }
+    : { type: 'Feature', geometry: { type: 'LineString', coordinates: [] }, properties: {} };
 
   if (src) {
     src.setData(data);
@@ -207,8 +227,8 @@ function drawRoute(route: SeaRouteFeature | undefined) {
     });
   }
 
-  if (route && route.geometry.coordinates.length > 1) {
-    fitToCoords(route.geometry.coordinates as [number, number][]);
+  if (displayCoords.length > 1) {
+    fitToCoords(displayCoords);
   }
 }
 
