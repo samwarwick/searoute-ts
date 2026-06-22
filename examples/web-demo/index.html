@@ -16,7 +16,7 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link
       rel="stylesheet"
-      href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css"
+      href="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.css"
       crossorigin="anonymous"
     />
     <title>searoute-ts — interactive sea-route demo</title>
@@ -89,6 +89,11 @@
             <label><input type="checkbox" data-restrict="malacca" /> Malacca Strait</label>
             <label><input type="checkbox" data-restrict="gibraltar" /> Gibraltar</label>
             <label><input type="checkbox" data-allow-arctic /> Allow Arctic routes</label>
+          </fieldset>
+
+          <fieldset class="toggles">
+            <legend>Display</legend>
+            <label><input type="checkbox" id="globe-toggle" /> Globe projection</label>
           </fieldset>
         </section>
 

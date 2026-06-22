@@ -46,6 +46,7 @@ const hint = $<HTMLElement>('#hint');
 const presetButtons = $<HTMLElement>('#preset-buttons');
 const restrictionToggles = document.querySelectorAll<HTMLInputElement>('[data-restrict]');
 const arcticToggle = document.querySelector<HTMLInputElement>('[data-allow-arctic]')!;
+const globeToggle = $<HTMLInputElement>('#globe-toggle');
 
 // Populate presets
 for (const p of PRESETS) {
@@ -169,9 +170,9 @@ function recompute() {
   }
 }
 
-// Unwrap coordinates so consecutive longitudes never jump more than 180°.
-// This ensures trans-Pacific and other antimeridian-crossing routes render
-// correctly in MapLibre instead of drawing a horizontal line across the map.
+// Globe projection doesn't fix antimeridian crossings in GeoJSON data — the
+// rendering engine still interpolates between coordinate pairs as given, so a
+// line from lng 160 to lng -160 draws across Eurasia without this unwrap.
 function unwrapCoords(coords: [number, number][]): [number, number][] {
   if (coords.length === 0) return coords;
   const result: [number, number][] = [[coords[0][0], coords[0][1]]];
@@ -331,6 +332,9 @@ map.on('click', (e) => {
 
 for (const cb of restrictionToggles) cb.addEventListener('change', recompute);
 arcticToggle.addEventListener('change', recompute);
+globeToggle.addEventListener('change', () => {
+  map.setProjection({ type: globeToggle.checked ? 'globe' : 'mercator' });
+});
 speedInput.addEventListener('change', recompute);
 draftInput.addEventListener('change', recompute);
 
@@ -372,6 +376,7 @@ $<HTMLButtonElement>('#share').addEventListener('click', async () => {
 // ── Initial state ───────────────────────────────────────────────────────────
 
 map.on('load', () => {
+  map.setProjection({ type: 'mercator' });
   if (state.origin) setPin('origin', state.origin);
   if (state.destination) setPin('destination', state.destination);
   if (state.origin && state.destination) {
