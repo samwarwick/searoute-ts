@@ -119,7 +119,6 @@ function applyPreset(p: Preset) {
   setPin('origin', p.origin);
   setPin('destination', p.destination);
   recompute();
-  fitToCoords([p.origin, p.destination]);
 }
 
 function fitToCoords(coords: [number, number][]) {
