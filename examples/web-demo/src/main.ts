@@ -7,17 +7,22 @@ import {
   SnapFailedError,
 } from 'searoute-ts';
 
+import type { MarnetNetwork } from 'searoute-ts';
+
+let marnet5km: MarnetNetwork | undefined;
+const networkReady = fetch('/marnet_plus_5km.normalized.geojson')
+  .then((r) => r.json() as Promise<MarnetNetwork>)
+  .then((data) => {
+    marnet5km = data;
+  });
+
 import { PRESETS, type Preset } from './presets.js';
 import { fmtCoord, readUrl, writeUrl, type UrlState } from './url-state.js';
 import './style.css';
 
-const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
 const map = new maplibregl.Map({
   container: 'map',
-  style: isDark
-    ? 'https://tiles.openfreemap.org/styles/liberty'
-    : 'https://tiles.openfreemap.org/styles/positron',
+  style: 'https://tiles.openfreemap.org/styles/liberty',
   center: [0, 20],
   zoom: 1.6,
   attributionControl: false,
@@ -158,6 +163,7 @@ function recompute() {
       vesselDraftMeters: state.draftMeters > 0 ? state.draftMeters : undefined,
       speedKnots: state.speedKnots,
       returnPassages: true,
+      network: marnet5km,
     });
     currentRoute = route;
     drawRoute(route);
@@ -189,9 +195,7 @@ function unwrapCoords(coords: [number, number][]): [number, number][] {
 function drawRoute(route: SeaRouteFeature | undefined) {
   const src = map.getSource('route') as maplibregl.GeoJSONSource | undefined;
 
-  const displayCoords = route
-    ? unwrapCoords(route.geometry.coordinates as [number, number][])
-    : [];
+  const displayCoords = route ? unwrapCoords(route.geometry.coordinates as [number, number][]) : [];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const data: any = route
@@ -237,11 +241,12 @@ const fmt = (n: number) => n.toLocaleString(undefined, { maximumFractionDigits: 
 
 function renderResults(route: SeaRouteFeature | null, err: Error | null) {
   if (err) {
-    const msg = err instanceof SnapFailedError
-      ? `Couldn't snap ${err.side} to the network (nearest is ${err.distanceKm.toFixed(0)} km away).`
-      : err instanceof NoRouteError
-      ? 'No route found with these restrictions — try fewer blocked canals.'
-      : err.message;
+    const msg =
+      err instanceof SnapFailedError
+        ? `Couldn't snap ${err.side} to the network (nearest is ${err.distanceKm.toFixed(0)} km away).`
+        : err instanceof NoRouteError
+          ? 'No route found with these restrictions — try fewer blocked canals.'
+          : err.message;
     resultsEl.innerHTML = `<h2>Result</h2><div class="error-box">${escapeHtml(msg)}</div>`;
     codeCard.hidden = true;
     return;
@@ -301,8 +306,9 @@ console.log(route.properties.length); // km`;
 }
 
 function escapeHtml(s: string): string {
-  return s.replace(/[&<>"']/g, (c) =>
-    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!,
+  return s.replace(
+    /[&<>"']/g,
+    (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!,
   );
 }
 
@@ -374,7 +380,8 @@ $<HTMLButtonElement>('#share').addEventListener('click', async () => {
 
 // ── Initial state ───────────────────────────────────────────────────────────
 
-map.on('load', () => {
+map.on('load', async () => {
+  await networkReady;
   map.setProjection({ type: 'mercator' });
   if (state.origin) setPin('origin', state.origin);
   if (state.destination) setPin('destination', state.destination);
