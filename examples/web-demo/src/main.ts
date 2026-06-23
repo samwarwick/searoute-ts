@@ -10,10 +10,17 @@ import {
 import type { MarnetNetwork } from 'searoute-ts';
 
 let marnet5km: MarnetNetwork | undefined;
-const networkReady = fetch('/marnet_plus_5km.normalized.geojson')
-  .then((r) => r.json() as Promise<MarnetNetwork>)
+const networkReady = fetch(`${import.meta.env.BASE_URL}marnet_plus_5km.normalized.geojson`)
+  .then((r) => {
+    if (!r.ok) throw new Error(`Failed to load network: ${r.status} ${r.statusText}`);
+    return r.json() as Promise<MarnetNetwork>;
+  })
   .then((data) => {
     marnet5km = data;
+  })
+  .catch((err: unknown) => {
+    console.error(err);
+    alert(String(err));
   });
 
 import { PRESETS, type Preset } from './presets.js';
